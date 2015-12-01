@@ -98,8 +98,7 @@ soup = BeautifulSoup(html, "lxml")
 
 #### SCRAPE DATA
 
-from datetime import date
-this_year = date.today().year
+this_year = datetime.today().year
 year = 2012
 
 
@@ -128,24 +127,24 @@ while year <= this_year:
             csvMth = convert_mth_strings(csvMth.upper())
             data.append([csvYr, csvMth, url])
 
-    #### STORE DATA 1.0
+#### STORE DATA 1.0
 
-    for row in data:
-        csvYr, csvMth, url = row
-        filename = entity_id + "_" + csvYr + "_" + csvMth
-        todays_date = str(datetime.now())
-        file_url = url.strip()
+for row in data:
+    csvYr, csvMth, url = row
+    filename = entity_id + "_" + csvYr + "_" + csvMth
+    todays_date = str(datetime.now())
+    file_url = url.strip()
 
-        valid = validate(filename, file_url)
+    valid = validate(filename, file_url)
 
-        if valid == True:
-            scraperwiki.sqlite.save(unique_keys=['l'], data={"l": file_url, "f": filename, "d": todays_date })
-            print filename
-        else:
-            errors += 1
+    if valid == True:
+        scraperwiki.sqlite.save(unique_keys=['l'], data={"l": file_url, "f": filename, "d": todays_date })
+        print filename
+    else:
+        errors += 1
 
-    if errors > 0:
-        raise Exception("%d errors occurred during scrape." % errors)
+if errors > 0:
+    raise Exception("%d errors occurred during scrape." % errors)
 
 
 #### EOF
