@@ -86,6 +86,17 @@ def convert_mth_strings ( mth_string ):
 #### VARIABLES 1.0
 
 entity_id = "MOJ047_NOMS_gov"
+url = "https://www.gov.uk/government/publications/national-offender-management-service-spend-over-25000-2015"
+errors = 0
+data = []
+
+#### READ HTML 1.0
+
+html = urllib2.urlopen(url)
+soup = BeautifulSoup(html, "lxml")
+
+
+#### SCRAPE DATA
 
 from datetime import date
 this_year = date.today().year
@@ -93,20 +104,17 @@ year = 2012
 
 while year <= this_year:
 
+    url = url[:-4]
     url = "https://www.gov.uk/government/publications/national-offender-management-service-spend-over-25000-" + str(year)
     if year == 2012:
         url = "https://www.gov.uk/government/publications/national-offender-management-service"
-    year = year + 1
-    errors = 0
-    data = []
 
-    #### READ HTML 1.0
 
     html = urllib2.urlopen(url)
     soup = BeautifulSoup(html, "lxml")
 
+    year = year + 1
 
-    #### SCRAPE DATA
 
     title_divs = soup.find_all('div', 'attachment-details')
     for title_div in title_divs:
