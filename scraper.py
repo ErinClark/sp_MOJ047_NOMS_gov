@@ -86,40 +86,58 @@ def convert_mth_strings ( mth_string ):
 #### VARIABLES 1.0
 
 entity_id = "MOJ047_NOMS_gov"
-url = "https://www.gov.uk/government/publications/national-offender-management-service-spend-over-25000-2015"
-errors = 0
-data = []
+
+from datetime import date
+this_year = date.today().year
+year = 2012
+
+while year <= this_year:
+
+    url = "https://www.gov.uk/government/publications/national-offender-management-service-spend-over-25000-" + str(year)
+    if year == 2012:
+        url = "https://www.gov.uk/government/publications/national-offender-management-service"
+    year = year + 1
+    errors = 0
+    data = []
+
+    #### READ HTML 1.0
+
+    html = urllib2.urlopen(url)
+    soup = BeautifulSoup(html, "lxml")
 
 
-#### READ HTML 1.0
+    #### SCRAPE DATA
 
-html = urllib2.urlopen(url)
-soup = BeautifulSoup(html, "lxml")
+    title_divs = soup.find_all('div', 'attachment-details')
+    for title_div in title_divs:
+        links = title_div.find_all('span', 'download')
+        for link in links:
+            l = link.find('a', href=True)['href']
+            url = url[:18] + l
+            title = title_div.find('h2', 'title').text.split()
+            csvYr = title[1].strip()
+            csvMth = title[0][:3].lower()
+            csvMth = convert_mth_strings(csvMth.upper())
+            data.append([csvYr, csvMth, url])
 
+    #### STORE DATA 1.0
 
-#### SCRAPE DATA
+    for row in data:
+        csvYr, csvMth, url = row
+        filename = entity_id + "_" + csvYr + "_" + csvMth
+        todays_date = str(datetime.now())
+        file_url = url.strip()
 
+        valid = validate(filename, file_url)
 
+        if valid == True:
+            scraperwiki.sqlite.save(unique_keys=['l'], data={"l": file_url, "f": filename, "d": todays_date })
+            print filename
+        else:
+            errors += 1
 
-
-#### STORE DATA 1.0
-
-for row in data:
-    csvYr, csvMth, url = row
-    filename = entity_id + "_" + csvYr + "_" + csvMth
-    todays_date = str(datetime.now())
-    file_url = url.strip()
-
-    valid = validate(filename, file_url)
-
-    if valid == True:
-        scraperwiki.sqlite.save(unique_keys=['l'], data={"l": file_url, "f": filename, "d": todays_date })
-        print filename
-    else:
-        errors += 1
-
-if errors > 0:
-    raise Exception("%d errors occurred during scrape." % errors)
+    if errors > 0:
+        raise Exception("%d errors occurred during scrape." % errors)
 
 
 #### EOF
