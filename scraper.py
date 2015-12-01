@@ -102,9 +102,9 @@ from datetime import date
 this_year = date.today().year
 year = 2012
 
+
 while year <= this_year:
 
-    url = url[:-4]
     url = "https://www.gov.uk/government/publications/national-offender-management-service-spend-over-25000-" + str(year)
     if year == 2012:
         url = "https://www.gov.uk/government/publications/national-offender-management-service"
